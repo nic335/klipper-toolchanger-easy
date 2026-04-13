@@ -307,6 +307,11 @@ class Toolchanger:
 
         if should_run_initialize:
             if self.status == STATUS_INITIALIZING:
+                if self.has_detection:
+                    detected_names = [t.name for t in self.tools.values() if t.detect_state == DETECT_PRESENT]
+                    if len(detected_names) > 1:
+                        raise self.gcode.error(
+                            '%s cannot initialize: multiple tools detected: %s' % (self.name, detected_names))
                 self.status = STATUS_READY
                 self.gcode.respond_info('%s initialized, active %s' %
                                         (self.name,
